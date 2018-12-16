@@ -23,6 +23,7 @@ contract Book
         uint8 color;            //文字顏色
         uint8 font;             //文字字型
         string content;         //段落文字內容
+        uint256 timestamp;      //交易完成時間
     }
     
 //region members
@@ -36,7 +37,7 @@ contract Book
     mapping(address => uint32) public leaderboard;
     
     // public 已結束編輯了嗎，若結束編輯則所有會更動資料的功能都不能用
-    bool isEnd = false;
+    bool public isEnd = false;
     
     // 我們服務用的錢包地址
     address owner;
@@ -91,7 +92,7 @@ contract Book
         }
         
         //交易成立，更改段落
-        StoryPart memory part = StoryPart(partID, msg.sender, value, color, font, content);
+        StoryPart memory part = StoryPart(partID, msg.sender, value, color, font, content, block.timestamp);
         parts[partID] = part;
         //更新排行榜
         leaderboard[msg.sender] ++;
@@ -115,6 +116,11 @@ contract Book
 //endregion
     
 //region get function
+    // 故事段落總數
+    function getStoryPartCount() public view returns(uint256) {
+        return parts.length;
+    }
+    
     // 輸入故事段落編號，取得該段落上次出價金額
     function getLastValueByID(uint32 partID) public view returns(uint256)
     {
@@ -152,7 +158,7 @@ contract Book
     {
         for(uint32 i = 0; i < totalPart ; i++)
         {
-            StoryPart memory part = StoryPart(i, owner, defaultValue, 0, 0, "");
+            StoryPart memory part = StoryPart(i, owner, defaultValue, 0, 0, "", block.timestamp);
             parts.push(part);
         }
     }
